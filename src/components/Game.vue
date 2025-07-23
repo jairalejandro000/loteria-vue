@@ -77,12 +77,13 @@ const shuffle = () => {
     }
 }
 const configGame = ref(false)
-// const game = ref(false)
+const game = ref(false)
 const startGame = () => {
     game.value = true
     // configGame.value = true
     shuffle()
-    console.log(configGame)
+    gameLoop()
+    // console.log(configGame)
 }
 const index = ref(0)
 const card = ref({})
@@ -94,16 +95,35 @@ const changeCard = (next) => {
     }
     card.value = cardsShuffled.value[index.value - 1]
 }
+const gameLoop = async () => {
+    while (index.value < cards.length) {
+        console.log("jaiiir")
+        console.log(index.value)
+        await changeCardTimer()
+        console.log(index.value)
+    }
+}
+const lapse = ref(3000)
+const changeCardTimer = async () => {
+    console.log(index.value)
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            changeCard(true)
+            resolve()
+        }, lapse.value)
+    }) 
+}
+
 onMounted(() => {
     shuffle()
 })
 </script>
 
 <template>
-    <!-- <template v-if="!game">
+    <template v-if="!game">
         <Button label="Iniciar juego" @click="startGame()" />
     </template>
-    <Dialog v-model:visible="configGame" modal header="Edit Profile" >
+    <!-- <Dialog v-model:visible="configGame" modal header="Edit Profile" >
         <span class="text-surface-500 dark:text-surface-400 block mb-8">Configurar juego</span>
         <RadioButtonGroup>
             <div class="flex items-center gap-2">
@@ -120,12 +140,14 @@ onMounted(() => {
             <Button type="button" label="Save" @click="visible = false"></Button>
         </div>
     </Dialog> -->
-    <Button label="Siguente" :disabled="index == card.length" @click="changeCard(true)" />
-    <Button label="Anterior" :disabled="index == 0" @click="changeCard(false)" />
-    <Card>
-        <template #title>{{ card?.name || 'Sin cartas' }}</template>
-        <template #content>       
-            <img :src="card ? getImagePath() : '../assets/img/loteria_cards/base.jpg' " :alt="card.name">
-        </template>
-    </Card>
+    <template v-if="game">
+        <Button label="Siguente" :disabled="index == card.length" @click="changeCard(true)" />
+        <Button label="Anterior" :disabled="index == 0" @click="changeCard(false)" />
+        <Card>
+            <template #title>{{ card?.name || 'Sin cartas' }}</template>
+            <template #content>
+                <img :src="card ? getImagePath() : '../assets/img/loteria_cards/base.jpg'" :alt="card.name">
+            </template>
+        </Card>
+    </template>
 </template>
